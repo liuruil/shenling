@@ -3,8 +3,8 @@ import preferences from '@ohos.data.preferences'
 import { TOKEN_KEY, USER_SETTING, USER_SETTING_AD } from '../constants'
 // 默认广告选项
 const defaultAd: AdvertClass = {
-  showAd: false,
-  adTime: 4,
+  showAd: true,
+  adTime: 7,
   adImg: $r('app.media.start')
 }
 export class UserSettingClass {
