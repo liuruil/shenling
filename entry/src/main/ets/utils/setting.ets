@@ -1,9 +1,9 @@
 import { AdvertClass } from '../models'
 import preferences from '@ohos.data.preferences'
-import { USER_SETTING, USER_SETTING_AD } from '../constants'
+import { TOKEN_KEY, USER_SETTING, USER_SETTING_AD } from '../constants'
 // 默认广告选项
 const defaultAd: AdvertClass = {
-  showAd: true,
+  showAd: false,
   adTime: 4,
   adImg: $r('app.media.start')
 }
@@ -30,5 +30,19 @@ export class UserSettingClass {
   async getUserAd (): Promise<AdvertClass> { //为了防止next版本报错
     const  adStore = await this.getStore()
     return  JSON.parse(await adStore.get(USER_SETTING_AD, JSON.stringify(defaultAd)) as string) as AdvertClass
+  }
+
+  // 设置token
+  async setUserToken (token: string) {
+    const adStore = await this.getStore()
+    await adStore.put(TOKEN_KEY, token)
+    // 写入磁盘
+    await adStore.flush()
+  }
+
+  // 获取token
+  async getUserToken (): Promise<string> {
+    const adStore = await this.getStore()
+    return await adStore.get(TOKEN_KEY, "") as string
   }
 }

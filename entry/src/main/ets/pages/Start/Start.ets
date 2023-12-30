@@ -1,6 +1,9 @@
 import router from '@ohos.router'
+import { TOKEN_KEY } from '../../constants'
 import { AdvertClass } from '../../models'
 import { UserSettingClass } from '../../utils'
+
+PersistentStorage.PersistProp(TOKEN_KEY, "")
 
 @Entry
 @Component
@@ -13,18 +16,30 @@ struct Start {
     adTime: 0,
     adImg:''
   }
+
+
   timer: number = -1
+
+  toNext() {
+    if(AppStorage.Get<string>(TOKEN_KEY)) {
+      router.replaceUrl({ url: 'pages/Index' })
+    }else {
+      router.replaceUrl({ url: 'pages/Login/Login' })
+    }
+  }
+
   async aboutToAppear() {
     this.adObj = await this.userSetting.getUserAd()
     this.timer = setInterval(() => {
       if(this.adObj.adTime === 0) {
         clearInterval(this.timer)
-        router.replaceUrl({ url: 'pages/Index' })
+        this.toNext()
         return
       }
       this.adObj.adTime--
     }, 1000)
   }
+
 
   aboutToDisappear(){
     clearInterval(this.timer)
@@ -45,7 +60,7 @@ struct Start {
         .textAlign(TextAlign.Center)
         .onClick(()=>{
           clearInterval(this.timer)
-          router.replaceUrl({ url: 'pages/Index' })
+          this.toNext()
         })
 
     }.height('100%').width('100%')
