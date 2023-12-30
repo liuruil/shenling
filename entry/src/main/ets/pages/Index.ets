@@ -8,6 +8,7 @@ struct Index {
       Column() {
         Text(this.message)
           .fontSize(50)
+          .fontColor($r('app.color.primary'))
           .fontWeight(FontWeight.Bold)
       }
       .width('100%')
