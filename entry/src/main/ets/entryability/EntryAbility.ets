@@ -1,6 +1,8 @@
 import UIAbility from '@ohos.app.ability.UIAbility';
 import hilog from '@ohos.hilog';
 import window from '@ohos.window';
+import { AdvertClass } from '../models';
+import { UserSettingClass } from '../utils/setting';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want, launchParam) {
@@ -11,17 +13,29 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onDestroy');
   }
 
-  onWindowStageCreate(windowStage: window.WindowStage) {
+  async  onWindowStageCreate(windowStage: window.WindowStage) {
     // Main window is created, set main page for this ability
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
-
-    windowStage.loadContent('pages/Index', (err, data) => {
-      if (err.code) {
-        hilog.error(0x0000, 'testTag', 'Failed to load the content. Cause: %{public}s', JSON.stringify(err) ?? '');
-        return;
-      }
-      hilog.info(0x0000, 'testTag', 'Succeeded in loading the content. Data: %{public}s', JSON.stringify(data) ?? '');
-    });
+    // 判断有没有广告
+    const userSetting = new UserSettingClass(this.context)
+    // 这里要尝试去读一下运营的配置-我们现在还没有实现接口，直接模拟一下
+    // const result = await new Promise<AdvertClass>((resolve, reject) => {
+    //   setTimeout(() => {
+    //     resolve({
+    //       showAd: true,
+    //       adTime: 10,
+    //       adImg: $r("app.media.start")
+    //     } as AdvertClass)
+    //   }, 500)
+    // })
+    // await userSetting.setUserAd(result) // 写入首选项
+    const adSetting = await userSetting.getUserAd()
+    if(adSetting.showAd) {
+      // 显示广告
+      windowStage.loadContent('pages/Start/Start'); // 跳转广告页
+    }else {
+      windowStage.loadContent('pages/Index');
+    }
   }
 
   onWindowStageDestroy() {
