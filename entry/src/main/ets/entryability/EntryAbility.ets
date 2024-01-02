@@ -19,6 +19,7 @@ export default class EntryAbility extends UIAbility {
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onWindowStageCreate');
     // 判断有没有广告
     const userSetting = new UserSettingClass(this.context)
+
     // 这里要尝试去读一下运营的配置-我们现在还没有实现接口，直接模拟一下
     // const result = await new Promise<AdvertClass>((resolve, reject) => {
     //   setTimeout(() => {
@@ -30,6 +31,7 @@ export default class EntryAbility extends UIAbility {
     //   }, 500)
     // })
     // await userSetting.setUserAd(result) // 写入首选项
+
     const adSetting = await userSetting.getUserAd()
     if(adSetting.showAd) {
       // 显示广告
