@@ -1,6 +1,7 @@
 import { TOKEN_KEY } from '../../constants/token_key'
 import { TabClass } from '../../models'
 import My from './My/My'
+import { TaskTabs } from './Task/TaskTabs'
 PersistentStorage.PersistProp(TOKEN_KEY,'')
 
 @Entry
@@ -23,6 +24,7 @@ struct Index {
     icon: $r("app.media.ic_tab_btn_mine_nor")
   }]
 
+
   @Builder
   getTabBar(item: TabClass) { // next 禁用 字面量类型
     Column() {
@@ -42,7 +44,7 @@ struct Index {
       ForEach(this.tabsData, (item: TabClass) => {
         TabContent(){
           if(item.name === 'task') {
-            Text("任务组件")
+            TaskTabs()
           }
           else if(item.name === 'message') {
             Text("消息组件")
