@@ -1,5 +1,6 @@
+import promptAction from '@ohos.promptAction'
 import { getTaskList } from '../../../api'
-import { HmLoading } from '../../../components'
+import { HmLoading,HmList } from '../../../components'
 import TaskItemCard from '../../../components/TaskItemCard'
 import { TaskInfoItemModel, TaskListParams, TaskListParamsModel, TaskTypeEnum } from '../../../models/task'
 @Preview
@@ -19,6 +20,9 @@ struct TaskList {
   taskListData: TaskInfoItemModel[] = []
   @State
   loading: boolean = false
+
+  @State // 控制下拉状态的变量
+  refreshing: boolean = false
 
   // aboutToAppear() {
   //   this.getTaskList()
@@ -44,32 +48,46 @@ struct TaskList {
     .justifyContent(FlexAlign.Center)
   }
 
-  async getTaskList() {
+  @Builder
+  renderItem (item: object) {
+    TaskItemCard({ taskItemData: item as TaskInfoItemModel })
+  }
+
+  async getTaskList(append: boolean) {
     const result = await getTaskList(this.queryParams)
-    this.taskListData = this.taskListData.concat(result.items) // 连接新的数组
+    if(append) {
+      this.taskListData = this.taskListData.concat(result.items) // 连接新的数组
+    }else {
+      this.taskListData = result.items
+    }
     this.allPage = result.pages // 赋值总页数
     this.queryParams.page++ // 页码+1
   }
 
-  build() {
-    List () {
-      ForEach(this.taskListData, (item: TaskInfoItemModel) => {
-        ListItem(){
-          TaskItemCard({taskItemData:item})
-        }
-      })
-      ListItem(){
-        this.getBottomDisplay() // 底部显示内容
-      } // 为了防止第一次不触发的问题
+  async onRefresh () {
+    this.allPage = 1
+    this.queryParams.page = 1
+    await this.getTaskList(false)
+    this.loading = false // 这行代码必须加- 因为要考虑已经滑到底部的情况，此时loading 为true 如果不开放这个状态 无法进行上拉加载
+    this.refreshing = false // 关闭下拉状态
+    promptAction.showToast({
+      message: '刷新成功'
+    })
+  }
 
-    }.onReachEnd(async () => {
-      if(this.allPage >= this.queryParams.page) {
-        if(!this.loading){
-          this.loading = true
-          await this.getTaskList()
-          this.loading = this.allPage < this.queryParams.page ? true : false
-        }
-      }
+  build() {
+    HmList({
+      onLoad: async () => {
+        await this.getTaskList(true)
+      },
+      onRefresh: async () => {
+        await this.onRefresh()
+      },
+      dataSource: $taskListData,
+      renderItem: this.renderItem,
+      finished: this.allPage < this.queryParams.page,
+      finishText: '没啦没啦',
+      loadingText: '拼命加载中'
     })
   }
 }
