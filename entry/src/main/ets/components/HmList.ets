@@ -10,12 +10,12 @@ struct HmList {
   finished: boolean // 是否结束
   @Link
   dataSource: object[] // 数据源
+
   @BuilderParam
   renderItem: (item: object) => void
-  onLoad: () => void = () => {
-  } // 上拉加载函数
-  onRefresh: () => void = () => {
-  } // 下拉刷新函数
+
+  onLoad: () => void = () => {} // 上拉加载函数
+  onRefresh: () => void = () => {} // 下拉刷新函数
   loadingText: string = "加载数据中" // 加载中文本
   finishText: string = "没有内容啦" // 结束文本
   showLoadingIcon: boolean = true // 是否显示加载进度
@@ -56,6 +56,7 @@ struct HmList {
             }
           }.width('100%')
         })
+        // 必须有一个子元素 才会一开始触发 onReachEnd
         ListItem() {
           this.getBottomDisplay()
         }

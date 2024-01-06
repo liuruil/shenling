@@ -4,6 +4,7 @@ export * from './tabs'
 export * from './task'
 export * from  './router'
 export * from './task_detail'
+export * from './pickup'
 export class ResponseData<T> {
   code: number = 0
   msg: string = ""

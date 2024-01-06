@@ -1,7 +1,7 @@
 import promptAction from '@ohos.promptAction'
 import { getTaskList } from '../../../api'
 import { HmLoading,HmList } from '../../../components'
-import TaskItemCard from '../../../components/TaskItemCard'
+import TaskItemCard from './TaskItemCard'
 import { TaskInfoItemModel, TaskListParams, TaskListParamsModel, TaskTypeEnum } from '../../../models/task'
 @Preview
 @Component

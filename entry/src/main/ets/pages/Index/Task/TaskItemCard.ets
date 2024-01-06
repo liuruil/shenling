@@ -1,5 +1,5 @@
 import router from '@ohos.router'
-import { TaskInfoItem, TaskInfoItemModel } from '../models'
+import { TaskInfoItem, TaskInfoItemModel } from '../../../models'
 @Preview
 @Component
 struct TaskItemCard {
