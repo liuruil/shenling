@@ -1,4 +1,4 @@
-import { TaskListDataModel, TaskListParamsModel } from '../models'
+import { CarRecordTypeModel, DeliverParamsTypeModel, TaskListDataModel, TaskListParamsModel } from '../models'
 import { Request } from '../utils'
 import {  TaskDetailInfoModel,PickUpParamsModel } from '../models'
 
@@ -14,4 +14,13 @@ export const getTaskList = (params: TaskListParamsModel) => {
 
 export const getTaskDetail = (id: string) => {
   return Request.get<TaskDetailInfoModel>(`/tasks/details/${id}`)
+}
+
+// 交货
+export const deliver = (data: DeliverParamsTypeModel) => {
+  return Request.post<null>("/tasks/deliver", data)
+}
+
+export const carRecord = (data: CarRecordTypeModel) => {
+  return Request.post<null>("/tasks/truckRegistration", data)
 }

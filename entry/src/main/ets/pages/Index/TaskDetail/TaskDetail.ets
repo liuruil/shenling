@@ -1,10 +1,11 @@
 // import { HmNavBar } from '../../components'
 import router from '@ohos.router'
 import promptAction from '@ohos.promptAction'
-import { getTaskDetail, pickUp } from '../../../api'
-import { HmLoading, HmNavBar,HmToggleCard, HmUpload, HmUploadClass } from '../../../components'
+import { deliver, getTaskDetail, pickUp } from '../../../api'
+import { HmLoading, HmNavBar,HmToggleCard, HmUpload } from '../../../components'
+import  { HmUploadClass } from '../../../components/HmUpload'
 // import {  HmToggleCard } from '../../components'
-import { CommonRouterParams, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel } from '../../../models'
+import { CommonRouterParams, DeliverParamsTypeModel, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel, TaskTypeEnum } from '../../../models'
 
 @Extend(Text) function baseTextOneStyle() {
   .fontSize(12)
@@ -30,6 +31,22 @@ class BaseBuilderClass {
 @Entry
 @Component
 struct TaskDetail {
+
+  @State
+  @Watch('updateDeliverPics')
+  deliverClass: HmUploadClass = new HmUploadClass() // 交货照片
+
+  @State
+  @Watch('updateCertificatePics')
+  certificateClass: HmUploadClass = new HmUploadClass() // 交货回单
+
+  updateDeliverPics () {
+    this.taskDetailData.deliverPictureList = this.deliverClass.images
+  }
+
+  updateCertificatePics() {
+    this.taskDetailData.certificatePictureList = this.certificateClass.images
+  }
 
   layer: CustomDialogController = new CustomDialogController({
     customStyle: true,
@@ -93,12 +110,24 @@ struct TaskDetail {
     }
   }
 
+  // 获取交货状态
+  getDeliverState () {
+    return this.taskDetailData.deliverPictureList?.length > 0 &&
+    this.taskDetailData.certificatePictureList?.length > 0
+    && this.taskDetailData.deliverPictureList.every(item => !!item.url)
+    && this.taskDetailData.certificatePictureList.every(item => !!item.url)
+  }
+
   async getTaskDetail(id: string) {
     this.layer.open()
     this.taskDetailData = await getTaskDetail(id)
     // 赋值提货数据
     this.cargoPickUpClass.images = this.taskDetailData.cargoPickUpPictureList || []
     this.cargoClass.images = this.taskDetailData.cargoPictureList || []
+
+    this.certificateClass.images = this.taskDetailData.certificatePictureList || []
+    this.deliverClass.images = this.taskDetailData.deliverPictureList || []
+
     this.layer.close()
   }
 
@@ -172,6 +201,19 @@ struct TaskDetail {
 
   }
 
+  // 交货
+  async btnDeliver () {
+    await deliver(new DeliverParamsTypeModel({
+      id: this.taskDetailData.id,
+      certificatePictureList: this.taskDetailData.certificatePictureList,
+      deliverPictureList: this.taskDetailData.deliverPictureList
+    }))
+    promptAction.showToast({
+      message: '交货成功'
+    })
+    this.getTaskDetail(this.taskDetailData.id) // 重新加载数据
+  }
+
   // 司机信息
   @Builder
   getDriverContent() {
@@ -214,32 +256,88 @@ struct TaskDetail {
   // 提货信息内容
   @Builder
   getPickUpContent() {
-    HmUpload({ title: '请拍照上传回单凭证',upClass: this.cargoPickUpClass})
-    HmUpload({ title: '请拍照上传货品照片',upClass: this.cargoClass })
+    HmUpload({
+      title: '请拍照上传回单凭证', upClass: this.cargoPickUpClass,
+      canUpload: this.taskDetailData.status === TaskTypeEnum.Waiting
+    })
+    HmUpload({
+      title: '请拍照上传货品照片', upClass: this.cargoClass,
+      canUpload: this.taskDetailData.status === TaskTypeEnum.Waiting
+    })
   }
 
+  // 交货信息内容
+  @Builder
+  getDeliverContent() {
+    HmUpload({
+      title: '请拍照上传交货凭证', upClass: this.certificateClass,
+      canUpload: this.taskDetailData.status === TaskTypeEnum.Line
+    })
+    HmUpload({
+      title: '请拍照上传交货货品照片', upClass: this.deliverClass,
+      canUpload: this.taskDetailData.status === TaskTypeEnum.Line
+    })
+  }
+
+  // 底部按钮结构
   // 底部按钮结构
   @Builder
   getBottomBtn() {
     //已完成不显示任何按钮
     Row() {
-      Button("延迟收货", { type: ButtonType.Capsule })
-        .backgroundColor($r('app.color.btn_gray'))
-        .fontColor($r('app.color.text_primary'))
-        .fontSize(16)
-        .height(50)
-        .width(125)
-      Button("提货", { type: ButtonType.Capsule })
-        .backgroundColor($r('app.color.primary_disabled'))
-        .fontColor($r('app.color.white'))
-        .height(50)
-        .flexGrow(1)
-        .margin({ left: 13 })
-        .backgroundColor(this.getPickUpState() ? $r('app.color.primary') : $r('app.color.primary_disabled'))
-        .enabled(this.getPickUpState())
-        .onClick(() => {
-          this.btnPickUp()
-        })
+      if(this.taskDetailData.status === TaskTypeEnum.Waiting) {
+        Button("延迟收货", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.btn_gray'))
+          .fontColor($r('app.color.text_primary'))
+          .fontSize(16)
+          .height(50)
+          .width(125)
+        Button("提货", { type: ButtonType.Capsule })
+          .fontColor($r('app.color.white'))
+          .height(50)
+          .flexGrow(1)
+          .margin({ left: 13 })
+          .backgroundColor(this.getPickUpState() ? $r('app.color.primary') : $r('app.color.primary_disabled'))
+          .enabled(this.getPickUpState())
+          .onClick(() => {
+            this.btnPickUp()
+          })
+      }else if (this.taskDetailData.status === TaskTypeEnum.Line) {
+        Button("上报异常", { type: ButtonType.Capsule })
+          .backgroundColor($r('app.color.btn_gray'))
+          .fontColor($r('app.color.text_primary'))
+          .fontSize(16)
+          .height(50)
+          .width(125)
+        Button("交货", { type: ButtonType.Capsule })
+          .backgroundColor(this.getDeliverState() ? $r('app.color.primary') :  $r('app.color.primary_disabled'))
+          .fontColor($r('app.color.white'))
+          .height(50)
+          .flexGrow(1)
+          .margin({ left: 13 })
+          .enabled(this.getDeliverState())
+          .onClick(() => {
+            this.btnDeliver()
+          })
+      }
+      else if(this.taskDetailData.status === TaskTypeEnum.Delivered) {
+        Row() {
+          // 已交付显示回车登记
+          Button("回车登记", { type: ButtonType.Capsule })
+            .backgroundColor($r('app.color.primary'))
+            .fontColor($r('app.color.white'))
+            .height(50)
+            .width('80%')
+            .onClick(() => {
+              router.pushUrl({
+                url: 'pages/CarRecord/CarRecord',
+                params: {
+                  id: this.taskDetailData.id
+                }
+              })
+            })
+        }.width('100%').justifyContent(FlexAlign.Center)
+      }
     }
     .width('100%')
     .padding({ left: 15, right: 15 })
@@ -250,6 +348,7 @@ struct TaskDetail {
     .position({ y: '100%' })
     .translate({ y: -70 })
   }
+
 
   build() {
     Column() {
@@ -265,8 +364,17 @@ struct TaskDetail {
           HmToggleCard({ title: '运输路线' }) {
             this.getTransLineContent()
           }
-          HmToggleCard({ title: '提货信息' }) {
-            this.getPickUpContent()
+          // 提货时显示提货照片
+          if(this.taskDetailData.status === TaskTypeEnum.Waiting || this.taskDetailData.status === TaskTypeEnum.Delivered) {
+            HmToggleCard({ title: '提货信息' }) {
+              this.getPickUpContent()
+            }
+          }
+          // 交货时显示交货照片
+          if(this.taskDetailData.status === TaskTypeEnum.Line || this.taskDetailData.status === TaskTypeEnum.Delivered) {
+            HmToggleCard({ title: '交货信息' }) {
+              this.getDeliverContent()
+            }
           }
         }.padding({
           bottom: 120

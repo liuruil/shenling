@@ -1,4 +1,4 @@
-import { TabClass } from '../../../models'
+import { TabClass, TaskListParams, TaskListParamsModel, TaskTypeEnum } from '../../../models'
 import TaskList from './TaskList'
 @Component
 export struct TaskTabs {
@@ -45,8 +45,12 @@ export struct TaskTabs {
         TabContent(){
           if(item.name === "waiting"){
             TaskList()
-          }else{
-            Text('111')
+          }else if(item.name === 'line') {
+            TaskList({ queryParams: new TaskListParamsModel({
+              page: 1,
+              pageSize: 5,
+              status: TaskTypeEnum.Line
+            } as TaskListParams) })
           }
         }.tabBar(this.getTabBar(item))
       })

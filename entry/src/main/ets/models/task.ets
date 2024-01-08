@@ -64,6 +64,7 @@ export interface TaskInfoItem {
 export enum TaskTypeEnum{
   Waiting = 1,
   Line = 2,
+  Delivered = 4, // 已交货待回车登记
   Finish = 6
 }
 

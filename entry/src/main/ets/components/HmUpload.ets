@@ -5,10 +5,27 @@ import request from '@ohos.request';
 import { uploadImage } from '../api'
 import { ImageList } from '../models';
 import { HmLoading } from '.';
+import { HmPreview } from './HmPreview'
 @Component
 struct HmUpload {
   title: string = ""
   maxNumber:number = 3
+  @State
+  list: string[] = []
+  @State
+  index: number = -1
+
+  preview: CustomDialogController = new CustomDialogController({
+    customStyle: true,
+    alignment: DialogAlignment.Center,
+    builder: HmPreview({
+      urls: this.list,
+      selectIndex: this.index
+    })
+  })
+
+  @Prop
+  canUpload:boolean = true
   // 定义弹层
   layer: CustomDialogController = new CustomDialogController({
     customStyle: true,
@@ -82,6 +99,11 @@ struct HmUpload {
               .width(95)
               .height(95)
               .borderRadius(4)
+              .onClick(() => {
+                this.list = this.upClass.images.map(item => item.url)
+                this.index = index
+                this.preview.open()
+              })
             // 删除图片
             Image($r('app.media.ic_btn_delete')).width(30).height(30)
               .onClick(() => {

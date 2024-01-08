@@ -4,6 +4,7 @@
     "pages/Login/Login",
     "pages/Index/Index",
     "pages/Setting/Setting",
-    "pages/Index/TaskDetail/TaskDetail"
+    "pages/Index/TaskDetail/TaskDetail",
+    "pages/CardRecord/CarRecord"
   ]
 }
