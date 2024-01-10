@@ -2,13 +2,20 @@
 @CustomDialog
 @Component
 struct HmLoading {
+
   controller:CustomDialogController
+
   loadingText: string = ""
+
   @State
   num: number = 0
+
   maxNumber: number = 100
+
   timer: number = -1
+
   hWidth: number = 40
+
   aboutToAppear() {
     this.timer = setInterval(() => {
       if(this.num === this.maxNumber) {
@@ -17,9 +24,11 @@ struct HmLoading {
       this.num++
     }, 10)
   }
+
   aboutToDisappear() {
     clearInterval(this.timer)
   }
+
   build() {
     Column({ space: 10 }) {
       Progress({

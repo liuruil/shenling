@@ -16,6 +16,7 @@ export struct TaskTabs {
   }]
 
   @State currentTabName: string = 'waiting'
+
   @Builder
   getTabBar(item: TabClass) {
     Column() {

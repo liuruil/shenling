@@ -30,9 +30,6 @@ struct My {
   // 获取
   async getUserInfo() {
     this.userInfo = await getUserInfo()
-    AlertDialog.show({
-      message: JSON.stringify(this.userInfo)
-    })
   }
 
   build() {

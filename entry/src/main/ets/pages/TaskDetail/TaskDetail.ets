@@ -1,11 +1,11 @@
 // import { HmNavBar } from '../../components'
 import router from '@ohos.router'
 import promptAction from '@ohos.promptAction'
-import { deliver, getTaskDetail, pickUp } from '../../../api'
-import { HmLoading, HmNavBar,HmToggleCard, HmUpload } from '../../../components'
-import  { HmUploadClass } from '../../../components/HmUpload'
+import { deliver, getTaskDetail, pickUp } from '../../api'
+import { HmLoading, HmNavBar,HmToggleCard, HmUpload } from '../../components'
+import  { HmUploadClass } from '../../components/HmUpload'
 // import {  HmToggleCard } from '../../components'
-import { CommonRouterParams, DeliverParamsTypeModel, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel, TaskTypeEnum } from '../../../models'
+import { CommonRouterParams, DeliverParamsTypeModel, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel, TaskTypeEnum } from '../../models'
 
 @Extend(Text) function baseTextOneStyle() {
   .fontSize(12)
@@ -127,7 +127,6 @@ struct TaskDetail {
 
     this.certificateClass.images = this.taskDetailData.certificatePictureList || []
     this.deliverClass.images = this.taskDetailData.deliverPictureList || []
-
     this.layer.close()
   }
 
@@ -257,11 +256,13 @@ struct TaskDetail {
   @Builder
   getPickUpContent() {
     HmUpload({
-      title: '请拍照上传回单凭证', upClass: this.cargoPickUpClass,
+      title: '请拍照上传回单凭证',
+      upClass: this.cargoPickUpClass,
       canUpload: this.taskDetailData.status === TaskTypeEnum.Waiting
     })
     HmUpload({
-      title: '请拍照上传货品照片', upClass: this.cargoClass,
+      title: '请拍照上传货品照片',
+      upClass: this.cargoClass,
       canUpload: this.taskDetailData.status === TaskTypeEnum.Waiting
     })
   }
@@ -292,6 +293,15 @@ struct TaskDetail {
           .fontSize(16)
           .height(50)
           .width(125)
+          .onClick(() => {
+            router.pushUrl({
+              url: 'pages/Delay/Delay',
+              params: {
+                id: this.taskDetailData.id,
+                oldTime: this.taskDetailData.planDepartureTime
+              }
+            })
+          })
         Button("提货", { type: ButtonType.Capsule })
           .fontColor($r('app.color.white'))
           .height(50)
@@ -308,7 +318,14 @@ struct TaskDetail {
           .fontColor($r('app.color.text_primary'))
           .fontSize(16)
           .height(50)
-          .width(125)
+          .width(125).onClick(() => {
+          router.pushUrl({
+            url: 'pages/Exception/Exception',
+            params: {
+              id: this.taskDetailData.transportTaskId
+            }
+          })
+        })
         Button("交货", { type: ButtonType.Capsule })
           .backgroundColor(this.getDeliverState() ? $r('app.color.primary') :  $r('app.color.primary_disabled'))
           .fontColor($r('app.color.white'))
@@ -330,7 +347,7 @@ struct TaskDetail {
             .width('80%')
             .onClick(() => {
               router.pushUrl({
-                url: 'pages/CarRecord/CarRecord',
+                url: 'pages/CardRecord/CarRecord',
                 params: {
                   id: this.taskDetailData.id
                 }
@@ -379,8 +396,8 @@ struct TaskDetail {
         }.padding({
           bottom: 120
         })
-        this.getBottomBtn() // 底部按钮结构
       }
+      this.getBottomBtn() // 底部按钮结构
     }.backgroundColor($r('app.color.background_page')).
     height('100%')
   }

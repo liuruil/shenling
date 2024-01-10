@@ -14,8 +14,8 @@ struct Login {
 
   @State
   accountForm: LoginFormModel = new LoginFormModel({
-    account: 'liurui123',
-    password: 'liurui123'
+    account: 'liu1234',
+    password: 'liu1234'
   })
 
   @Styles

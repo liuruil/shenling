@@ -26,6 +26,7 @@ struct HmUpload {
 
   @Prop
   canUpload:boolean = true
+
   // 定义弹层
   layer: CustomDialogController = new CustomDialogController({
     customStyle: true,
@@ -80,9 +81,9 @@ struct HmUpload {
         this.layer.close()
       }
     }
-    AlertDialog.show({
-      message: JSON.stringify(result.photoUris)
-    })
+    // AlertDialog.show({
+    //   message: JSON.stringify(result.photoUris)
+    // })
   }
 
   build() {
@@ -104,11 +105,13 @@ struct HmUpload {
                 this.index = index
                 this.preview.open()
               })
-            // 删除图片
-            Image($r('app.media.ic_btn_delete')).width(30).height(30)
-              .onClick(() => {
-                this.upClass.images = this.upClass.images.filter((_,i) => i !== index)
-              })
+             if(this.canUpload){
+               // 删除图片
+               Image($r('app.media.ic_btn_delete')).width(30).height(30)
+                 .onClick(() => {
+                   this.upClass.images = this.upClass.images.filter((_,i) => i !== index)
+                 })
+             }
           }.margin({ right: 15, bottom: 10 })
         })
         if(this.maxNumber > this.upClass.images.length) {

@@ -10,7 +10,15 @@
     ],
     "requestPermissions": [
       {
-        "name": "ohos.permission.INTERNET"
+        "name": "ohos.permission.INTERNET",
+      },{
+        "name": 'ohos.permission.LOCATION'
+      },
+      {
+        "name": 'ohos.permission.APPROXIMATELY_LOCATION'
+      },
+      {
+        "name": 'ohos.permission.LOCATION_IN_BACKGROUND'
       }
     ],
     "deliveryWithInstall": true,

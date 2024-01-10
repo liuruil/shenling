@@ -4,6 +4,7 @@ import { ResponseData } from '../models'
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { UserSettingClass } from '.';
+import { Logger } from './logger';
 
 // 创建网络请求
 const httpRequest = http.createHttp()
@@ -22,6 +23,7 @@ async function requestHttp<T>(url: string = "", method: http.RequestMethod = htt
       }).join('&')
     }
   }
+  Logger.info(`REQUEST→${url}→${method}`, JSON.stringify(data))
   // 设置请求头
   const config: http.HttpRequestOptions = {
     header: {
@@ -34,6 +36,7 @@ async function requestHttp<T>(url: string = "", method: http.RequestMethod = htt
   }
   try {
     const res = await httpRequest.request(urlStr, config)
+    Logger.info(`RESPONSE→${url}→${method}`, res.result.toString().substring(0, 250))
     if (res.responseCode === 401) {
       promptAction.showToast({ message: 'token超时' })
       AppStorage.Set(TOKEN_KEY, "") // 删除token 这里为什么不用Delete
@@ -58,7 +61,8 @@ async function requestHttp<T>(url: string = "", method: http.RequestMethod = htt
       }
     }
   } catch (error) {
-    promptAction.showToast({ message: error.message })
+    Logger.error(`RESPONSE→${url}→${method}`, JSON.stringify(error).substring(0, 250))
+    // promptAction.showToast({ message: error.message })
     return Promise.reject(error)
   }
   finally {

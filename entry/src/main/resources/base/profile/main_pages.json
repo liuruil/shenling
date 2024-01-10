@@ -4,7 +4,10 @@
     "pages/Login/Login",
     "pages/Index/Index",
     "pages/Setting/Setting",
-    "pages/Index/TaskDetail/TaskDetail",
-    "pages/CardRecord/CarRecord"
+    "pages/TaskDetail/TaskDetail",
+    "pages/CardRecord/CarRecord",
+    "pages/Delay/Delay",
+    "pages/Exception/Exception",
+    "pages/SelectLocation/SelectLocation"
   ]
 }

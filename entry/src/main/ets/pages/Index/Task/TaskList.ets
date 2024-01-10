@@ -24,10 +24,6 @@ struct TaskList {
   @State // 控制下拉状态的变量
   refreshing: boolean = false
 
-  // aboutToAppear() {
-  //   this.getTaskList()
-  // }
-
   // 获取底部显示的文本
   @Builder
   getBottomDisplay() {
