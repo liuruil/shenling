@@ -9,10 +9,11 @@ struct HmCardItem {
 
   build() {
     Row() {
-      Text(this.leftTitle)
-        .fontSize(16)
-        .fontWeight(400)
-        .fontColor($r('app.color.text_primary'))
+      Text(this.leftTitle).fontSize(16).fontWeight(400).fontColor($r('app.color.text_primary'))
+        .textOverflow({
+          overflow: TextOverflow.Ellipsis,
+        }).maxLines(1)
+        .layoutWeight(1)
       Row() {
         if (this.rightText) {
           Text(this.rightText).fontColor($r("app.color.text_secondary")).fontWeight(400).fontSize(14)

@@ -86,6 +86,13 @@ struct ExceptionReport {
     }
   }
 
+  onPageShow() {
+    const params = router.getParams() as CommonRouterParams
+    if(params && params.address) {
+      this.exceptionForm.exceptionPlace = params.address
+    }
+  }
+
 
   build() {
     Column() {
@@ -97,7 +104,7 @@ struct ExceptionReport {
             this.dateTimePicker.open()
           }
         })
-        HmCardItem({ leftTitle: '上报位置', rightText:  '请选择', onRightClick: () => {
+        HmCardItem({ leftTitle: '上报位置', rightText: this.exceptionForm.exceptionPlace || '请选择', onRightClick: () => {
           router.pushUrl({
             url: 'pages/SelectLocation/SelectLocation'
           })
