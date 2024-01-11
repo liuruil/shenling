@@ -1,4 +1,6 @@
 import router from '@ohos.router'
+import promptAction from '@ohos.promptAction'
+import { exceptionReport } from '../../api'
 import { HmCard, HmCardItem, HmNavBar, HmSelectCard, HmUpload, HmUploadClass } from '../../components'
 import { HmDateTimePicker } from '../../components/HmDateTimePicker'
 import { CommonRouterParams, ExceptionParamsType, ExceptionParamsTypeModel } from '../../models'
@@ -11,7 +13,16 @@ class ExceptionItemClass {
 @Entry
 @Component
 struct ExceptionReport {
-  @State exceptionImagesList: HmUploadClass = new HmUploadClass()
+
+  maxNumber: number = 50
+
+  @State
+  @Watch('updateExceptionImagesList')
+  exceptionImagesList: HmUploadClass = new HmUploadClass()
+
+  updateExceptionImagesList() {
+    this.exceptionForm.exceptionImagesList = this.exceptionImagesList.images
+  }
 
 
   @State
@@ -34,6 +45,14 @@ struct ExceptionReport {
     customStyle: true,
     alignment: DialogAlignment.Bottom
   })
+
+  getBtnEnable () {
+    return !!(this.exceptionForm.exceptionDescribe &&
+    this.exceptionForm.exceptionPlace &&
+    this.exceptionForm.exceptionTime &&
+    this.exceptionForm.exceptionType &&
+    this.exceptionForm.exceptionDescribe)
+  }
 
   // 单个的渲染选项
   @Builder
@@ -79,18 +98,28 @@ struct ExceptionReport {
     autoCancel: false
   })
 
-  aboutToAppear() {
-    const params = router.getParams() as CommonRouterParams
-    if(params && params.id) {
-      this.exceptionForm.transportTaskId = params.id
-    }
-  }
-
   onPageShow() {
     const params = router.getParams() as CommonRouterParams
+    if (params && params.id) {
+      this.exceptionForm.transportTaskId = params.id
+    }
     if(params && params.address) {
       this.exceptionForm.exceptionPlace = params.address
     }
+  }
+
+  async btnReport () {
+    await exceptionReport(this.exceptionForm as ExceptionParamsType)
+    promptAction.showToast({
+      message: '上报异常成功',
+      duration: 3000
+    })
+    router.back({
+      url: 'pages/TaskDetail/TaskDetail',
+      params: {
+        addExcept: true
+      }
+    })
   }
 
 
@@ -104,21 +133,33 @@ struct ExceptionReport {
             this.dateTimePicker.open()
           }
         })
-        HmCardItem({ leftTitle: '上报位置', rightText: this.exceptionForm.exceptionPlace || '请选择', onRightClick: () => {
-          router.pushUrl({
-            url: 'pages/SelectLocation/SelectLocation'
-          })
+        HmCardItem({
+          leftTitle: '上报位置',
+          rightText: this.exceptionForm.exceptionPlace || '请选择',
+          onRightClick: () => {
+            router.pushUrl({
+              url: 'pages/SelectLocation/SelectLocation'
+            })
         }})
-        HmCardItem({ leftTitle: '异常类型', rightText: this.exceptionForm.exceptionType || '请选择', showBottomBorder: false,
+        HmCardItem({
+          leftTitle: '异常类型',
+          rightText: this.exceptionForm.exceptionType || '请选择',
+          showBottomBorder: false,
           onRightClick: () => {
             this.typeDialog.open()
           }
         })
         HmCardItem({ leftTitle: '异常描述', rightText: '', showRightIcon: false, showBottomBorder: false })
+
         TextArea({
-          placeholder: '请输入异常描述'
-        }).height(130).borderRadius(8).placeholderColor($r('app.color.text_secondary')).fontSize(14)
-        Text(`0/50`)
+          placeholder: '请输入异常描述',
+          text: this.exceptionForm.exceptionDescribe!
+        }).height(130).borderRadius(8).placeholderColor($r('app.color.text_secondary')).fontSize(14).onChange((value) => {
+          if(value.length <= this.maxNumber) {
+            this.exceptionForm.exceptionDescribe = value
+          }
+        })
+        Text(`${this.exceptionForm.exceptionDescribe?.length || 0}/${this.maxNumber}`)
           .margin({
             top: -30
           })
@@ -134,7 +175,13 @@ struct ExceptionReport {
         Row().height(20)
       }
       Row() {
-        Button("提交").height(50).width(207).backgroundColor($r('app.color.primary_disabled'))
+        Button("提交").height(50).width(207).backgroundColor(
+          this.getBtnEnable() ?   $r('app.color.primary') :
+          $r('app.color.primary_disabled')).
+        enabled(this.getBtnEnable())
+          .onClick(()=>{
+            this.btnReport()
+          })
       }.position({
         y: '100%'
       }).height(70).translate({

@@ -1,11 +1,12 @@
 // import { HmNavBar } from '../../components'
 import router from '@ohos.router'
 import promptAction from '@ohos.promptAction'
+import call from '@ohos.telephony.call'
 import { deliver, getTaskDetail, pickUp } from '../../api'
 import { HmLoading, HmNavBar,HmToggleCard, HmUpload } from '../../components'
 import  { HmUploadClass } from '../../components/HmUpload'
 // import {  HmToggleCard } from '../../components'
-import { CommonRouterParams, DeliverParamsTypeModel, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel, TaskTypeEnum } from '../../models'
+import { CommonRouterParams, DeliverParamsTypeModel, ExceptionList, PickUpParamsModel, TaskDetailInfo, TaskDetailInfoModel, TaskTypeEnum } from '../../models'
 
 @Extend(Text) function baseTextOneStyle() {
   .fontSize(12)
@@ -26,6 +27,7 @@ class BaseBuilderClass {
   title: string = ""
   value: string = ""
   icon?: ResourceStr = ""
+  iconClick?: () => void = () => {}
 }
 
 @Entry
@@ -78,6 +80,14 @@ struct TaskDetail {
     && this.taskDetailData.cargoPictureList.every(item => !!item.url)
   }
 
+  async onPageShow() {
+    const params = router.getParams()  as CommonRouterParams
+    if(params &&  params.addExcept) {
+      const result =  await getTaskDetail(this.taskDetailData.id)
+      this.taskDetailData.exceptionList = result.exceptionList
+    }
+  }
+
 
   // 提货
   async btnPickUp () {
@@ -91,6 +101,7 @@ struct TaskDetail {
       duration: 3000
     })
     this.getTaskDetail(this.taskDetailData.id) // 重新加载数据
+    this.scroller.scrollEdge(Edge.Top) //滚到顶部
   }
 
   // 监听数据的变化
@@ -139,6 +150,9 @@ struct TaskDetail {
         Text(item.value).fontSize(14).fontColor($r('app.color.text_secondary'))
         if (item.icon) {
           Image(item.icon).width(24).height(24)
+            .onClick(() => {
+              item.iconClick?.()
+            })
         }
       }
     }.justifyContent(FlexAlign.SpaceBetween).width('100%').margin({
@@ -164,14 +178,16 @@ struct TaskDetail {
       .margin({
         right: 20
       })
-
-      Column() {
-        Image($r("app.media.ic_navigation")).width(22).height(22)
-        Text("开始导航").fontSize(14).margin({ top: 10, bottom: 10 })
-      }.justifyContent(FlexAlign.SpaceBetween)
-      .margin({
-        top: 20
-      })
+      // 在途情况下 才显示导航
+      if (this.taskDetailData.status === TaskTypeEnum.Line) {
+        Column() {
+          Image($r("app.media.ic_navigation")).width(22).height(22)
+          Text("开始导航").fontSize(14).margin({ top: 10, bottom: 10 })
+        }.justifyContent(FlexAlign.SpaceBetween)
+        .margin({
+          top: 20
+        })
+      }
 
     }.justifyContent(FlexAlign.SpaceBetween).alignItems(VerticalAlign.Center).width('100%')
 
@@ -187,7 +203,10 @@ struct TaskDetail {
     this.getBaseContentItem({
       title: '联系电话',
       value: this.taskDetailData.startHandoverPhone,
-      icon: $r('app.media.ic_phone')
+      icon: $r('app.media.ic_phone'),
+      iconClick: () => {
+        call.makeCall(this.taskDetailData.startHandoverPhone);
+      }
     })
     this.getBaseContentItem({
       title: '提货时间',
@@ -277,6 +296,45 @@ struct TaskDetail {
     HmUpload({
       title: '请拍照上传交货货品照片', upClass: this.deliverClass,
       canUpload: this.taskDetailData.status === TaskTypeEnum.Line
+    })
+  }
+
+  // 获取异常信息
+  @Builder
+  getExceptionContent() {
+    ForEach(this.taskDetailData.exceptionList, (item: ExceptionList) => {
+      Row() {
+        Column() {
+          Row() {
+            Text("上报时间").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text(item.exceptionTime).margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+
+          Row() {
+            Text("异常类型").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text(item.exceptionType).margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+
+          Row() {
+            Text("处理结果").fontSize(14).fontColor($r('app.color.text_primary'))
+            Text("继续运输").margin({ left: 20 }).fontColor($r('app.color.text_secondary'))
+          }.height(50).alignItems(VerticalAlign.Center).width('100%')
+        }
+        // 跳转到详情
+        Image($r("app.media.ic_btn_more")).width(24).height(24).onClick(() => {
+          router.pushUrl({
+            url: "pages/ExceptionDetail/ExceptionDetail",
+            params: {
+              formData: item
+            }
+          })
+        })
+      }
+      .width('100%')
+      .padding({ left: 15, right: 15 })
+      .alignItems(VerticalAlign.Center)
+      .justifyContent(FlexAlign.SpaceBetween)
+
     })
   }
 
@@ -380,6 +438,11 @@ struct TaskDetail {
           }
           HmToggleCard({ title: '运输路线' }) {
             this.getTransLineContent()
+          }
+          if (this.taskDetailData.exceptionList?.length > 0) {
+            HmToggleCard({ title: '异常信息' }) {
+              this.getExceptionContent()
+            }
           }
           // 提货时显示提货照片
           if(this.taskDetailData.status === TaskTypeEnum.Waiting || this.taskDetailData.status === TaskTypeEnum.Delivered) {

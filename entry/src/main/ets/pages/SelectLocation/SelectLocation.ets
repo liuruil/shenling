@@ -4,6 +4,7 @@ import webview from '@ohos.web.webview';
 import { WebSdkClass } from '../../utils';
 import { AddressItem } from '../../models';
 import router from '@ohos.router';
+import promptAction from '@ohos.promptAction';
 
 @Entry
 @Component
@@ -71,6 +72,7 @@ struct SelectLocatn {
               rightText: item.distance ? `${item.distance}米` : ''
             })
               .onClick(() => {
+                promptAction.showToast({message:'11'})
                 router.back({
                   url: "pages/Exception/Exception",
                   params: {

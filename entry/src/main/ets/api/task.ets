@@ -1,4 +1,4 @@
-import { CarRecordTypeModel, DelayParamsTypeModel, DeliverParamsTypeModel, TaskListDataModel, TaskListParamsModel } from '../models'
+import { CarRecordTypeModel, DelayParamsTypeModel, DeliverParamsTypeModel, ExceptionParamsTypeModel, TaskListDataModel, TaskListParamsModel } from '../models'
 import { Request } from '../utils'
 import {  TaskDetailInfoModel,PickUpParamsModel } from '../models'
 
@@ -28,4 +28,9 @@ export const carRecord = (data: CarRecordTypeModel) => {
 // 延迟收货
 export const delay = (data: DelayParamsTypeModel) => {
   return Request.put<null>("/tasks/delay", data)
+}
+
+// 上报异常
+export const exceptionReport = (data: ExceptionParamsTypeModel) => {
+  return Request.post<null>("/tasks/reportException", data)
 }
