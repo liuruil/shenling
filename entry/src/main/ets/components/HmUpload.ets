@@ -9,9 +9,12 @@ import { HmPreview } from './HmPreview'
 @Component
 struct HmUpload {
   title: string = ""
+
   maxNumber:number = 3
+
   @State
   list: string[] = []
+
   @State
   index: number = -1
 

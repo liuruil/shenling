@@ -290,7 +290,8 @@ struct TaskDetail {
   @Builder
   getDeliverContent() {
     HmUpload({
-      title: '请拍照上传交货凭证', upClass: this.certificateClass,
+      title: '请拍照上传交货凭证',
+      upClass: this.certificateClass,
       canUpload: this.taskDetailData.status === TaskTypeEnum.Line
     })
     HmUpload({
