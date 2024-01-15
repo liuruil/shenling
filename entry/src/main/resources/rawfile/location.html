@@ -44,6 +44,7 @@
       if (window.shenling) {
         shenling.getLocation("getLocation")
       }
+      // getLocation(116.397428, 39.90923)
     }
 
     function getLocation(lon, lat) {
@@ -55,6 +56,8 @@
           extensions: "base", //返回信息详略，默认为base（基本信息）
         }) //构造PlaceSearch类
         AMap.event.addListener(MSearch, "complete", (result) => {
+          // alert(JSON.stringify(result.poiList.pois))
+          // receiveData
           shenling.receiveData("search_list", JSON.stringify(result.poiList.pois || []))
         }) //返回结果
         MSearch.searchNearBy("地点", new AMap.LngLat(lon, lat)) //关键字查询

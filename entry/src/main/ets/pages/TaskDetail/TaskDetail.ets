@@ -167,11 +167,11 @@ struct TaskDetail {
       Column() {
         Row() {
           Text("起").baseTextOneStyle()
-          Text("北京市昌平区回龙观街道西三旗桥东金燕龙写字楼8877号").baseTextTwoStyle()
+          Text(this.taskDetailData.startAddress).baseTextTwoStyle()
         }.margin({ top: 21 })
         Row() {
           Text("止").baseTextOneStyle().backgroundColor($r('app.color.primary'))
-          Text("河南省郑州市路北区北清路99号").baseTextTwoStyle()
+          Text(this.taskDetailData.endAddress).baseTextTwoStyle()
         }.margin({ top: 14.5 })
       }.alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
@@ -186,6 +186,16 @@ struct TaskDetail {
         }.justifyContent(FlexAlign.SpaceBetween)
         .margin({
           top: 20
+        })
+        .onClick(()=>{
+          // promptAction.showToast({message:this.taskDetailData.startAddress+'_'+this.taskDetailData.endAddress})
+          router.pushUrl({
+            url:'pages/NavigationPage/NavigationPage',
+            params: {
+              start: this.taskDetailData.startAddress,
+              end: this.taskDetailData.endAddress
+            }
+          })
         })
       }
 

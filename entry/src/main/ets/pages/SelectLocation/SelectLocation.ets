@@ -12,25 +12,6 @@ struct SelectLocatn {
 
   webSdk: WebSdkClass = new WebSdkClass()
 
-  // messagePorts: webview.WebMessagePort[] = []
-  //
-  // webController: webview.WebviewController = new webview.WebviewController()
-  //
-  // // 创建信道
-  // createPorts() {
-  //   this.messagePorts = this.webController.createWebMessagePorts() // 创建两个端口，一个自己用，一个html页面用
-  //   // 监听 html页面发送的消息
-  //   this.messagePorts[1].onMessageEvent((msg) => {
-  //     if(typeof msg === 'string') {
-  //       const data = JSON.parse(msg)
-  //       if(data.type === 'connect_ok'){
-  //         AlertDialog.show({ message: '双向通信建立成功' })
-  //       }
-  //     }
-  //   })
-  //   this.webController.postMessage("__init_port__", [this.messagePorts[0]], "*")
-  // }
-
   @State
   list: AddressItem[] = []
 
@@ -58,7 +39,7 @@ struct SelectLocatn {
         .javaScriptProxy({
           object: this.webSdk,
           name: "shenling",
-          methodList: ["toast", "alert", 'getLocation'],
+          methodList: ["toast", "alert", 'getLocation','receiveData'],
           controller: WebSdkClass.Controller!,
         })
         // .onPageEnd(() => {

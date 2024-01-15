@@ -4,5 +4,7 @@ export class CommonRouterParams {
   oldTime?: string = ''
   address?: string = ''
   addExcept?: boolean = false
+  start?: string = ''
+  end?: string = ""
   formData?: ExceptionListModel
 }
