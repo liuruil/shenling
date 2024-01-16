@@ -1,6 +1,6 @@
 import http from '@ohos.net.http'
 import { BASE_URL, TOKEN_KEY } from '../constants'
-import { ResponseData } from '../models'
+import { EmptyInterface, ResponseData } from '../models'
 import router from '@ohos.router';
 import promptAction from '@ohos.promptAction';
 import { UserSettingClass } from '.';
@@ -32,7 +32,7 @@ async function requestHttp<T>(url: string = "", method: http.RequestMethod = htt
     },
     method,
     readTimeout: 10000, // 超时时间
-    extraData: method === http.RequestMethod.GET ? "" : data
+    extraData: method === http.RequestMethod.GET ? "" : data || {} as EmptyInterface
   }
   try {
     const res = await httpRequest.request(urlStr, config)

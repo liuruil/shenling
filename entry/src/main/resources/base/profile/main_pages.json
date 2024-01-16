@@ -10,6 +10,11 @@
     "pages/Exception/Exception",
     "pages/SelectLocation/SelectLocation",
     "pages/ExceptionDetail/ExceptionDetail",
-    "pages/NavigationPage/NavigationPage"
+    "pages/NavigationPage/NavigationPage",
+    "pages/Setting/BindMobile",
+    "pages/Setting/MessageSend",
+    "pages/Setting/ChangePassword",
+    "pages/Car/Car",
+    "pages/UserTask/UserTask"
   ]
 }

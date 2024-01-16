@@ -52,6 +52,12 @@ export struct TaskTabs {
               pageSize: 5,
               status: TaskTypeEnum.Line
             } as TaskListParams) })
+          }else if(item.name === "finish") {
+            TaskList({ queryParams: new TaskListParamsModel({
+              page: 1,
+              pageSize: 5,
+              status: TaskTypeEnum.Finish
+            } as TaskListParams) })
           }
         }.tabBar(this.getTabBar(item))
       })

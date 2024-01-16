@@ -1,5 +1,6 @@
+import { ListDataSource } from '../models'
 import { HmLoading } from './HmLoading'
-
+import vibrator from '@ohos.vibrator';
 @Component
 struct HmList {
   @State
@@ -9,6 +10,7 @@ struct HmList {
   @Prop
   finished: boolean // 是否结束
   @Link
+  @Watch("updateDataSource")
   dataSource: object[] // 数据源
 
   @BuilderParam
@@ -19,6 +21,14 @@ struct HmList {
   loadingText: string = "加载数据中" // 加载中文本
   finishText: string = "没有内容啦" // 结束文本
   showLoadingIcon: boolean = true // 是否显示加载进度
+
+
+  lazyDataSource: ListDataSource = new ListDataSource()
+
+  // 更新数据
+  updateDataSource() {
+    this.lazyDataSource.reloadData(this.dataSource)
+  }
 
   // 获取底部显示的文本
   @Builder
@@ -49,14 +59,13 @@ struct HmList {
   build() {
     Refresh({ refreshing: $$this.refreshIng }) {
       List() {
-        ForEach(this.dataSource, (item: object) => {
+        LazyForEach(this.lazyDataSource, (item: object) => {
           ListItem() {
             if (this.renderItem) {
               this.renderItem(item)
             }
           }.width('100%')
         })
-        // 必须有一个子元素 才会一开始触发 onReachEnd
         ListItem() {
           this.getBottomDisplay()
         }
@@ -74,6 +83,7 @@ struct HmList {
         await this.onRefresh()
         this.refreshIng = false
         this.loading = false
+        vibrator.startVibration({ duration: 300, type: 'time' }, { id: 0, usage: 'touch' })
       }
     })
   }
